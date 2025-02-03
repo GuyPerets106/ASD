@@ -26,24 +26,25 @@ def load_config(config_path):
     """
     assert os.path.exists(config_path)
     config_hierarchy = config_path.split("/")
-    if config_hierarchy[0] != ".":
-        if config_hierarchy[0] != "config":
-            raise RuntimeError(
-                "Configuration file {} must be in config dir".format(config_path)
-            )
-        if len(config_hierarchy) > 2:
-            inner_dir = os.path.join(*config_hierarchy[1:-1])
-        else:
-            inner_dir = ""
-    else:
-        if config_hierarchy[1] != "config":
-            raise RuntimeError(
-                "Configuration file {} must be in config dir".format(config_path)
-            )
-        if len(config_hierarchy) > 3:
-            inner_dir = os.path.join(*config_hierarchy[2:-1])
-        else:
-            inner_dir = ""
+    # if config_hierarchy[0] != ".":
+    #     if config_hierarchy[0] != "config":
+    #         raise RuntimeError(
+    #             "Configuration file {} must be in config dir".format(config_path)
+    #         )
+    #     if len(config_hierarchy) > 2:
+    #         inner_dir = os.path.join(*config_hierarchy[1:-1])
+    #     else:
+    #         inner_dir = ""
+    # else:
+    #     if config_hierarchy[1] != "config":
+    #         raise RuntimeError(
+    #             "Configuration file {} must be in config dir".format(config_path)
+    #         )
+    #     if len(config_hierarchy) > 3:
+    #         inner_dir = os.path.join(*config_hierarchy[2:-1])
+    #     else:
+    #         inner_dir = ""
+    inner_dir = ""
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     config_name = config_hierarchy[-1].split(".yaml")[0]

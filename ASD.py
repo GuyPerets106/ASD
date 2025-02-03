@@ -3,6 +3,7 @@ import os
 import shutil
 from copy import deepcopy
 
+import time
 import numpy as np
 import torch
 import torch.distributed as dist
@@ -223,6 +224,7 @@ def main_worker(gpu, ngpus_per_node, args, config):
 
     choice_num = 0
     for epoch in range(resumed_epoch, config["num_epochs"]):
+        start_time = time.time()
         logger.info(
             "===Epoch: {}/{}===".format(epoch + 1, config["num_epochs"])
         )
@@ -302,12 +304,12 @@ def main_worker(gpu, ngpus_per_node, args, config):
 
         logger.info("Test model on clean data...")
         clean_test_result = linear_test(
-            linear_model, clean_test_loader, criterion, logger
+            linear_model, clean_test_loader, criterion, logger, 'clean'
         )
 
         logger.info("Test model on poison data...")
         poison_test_result = linear_test(
-            linear_model, poison_test_loader, criterion, logger
+            linear_model, poison_test_loader, criterion, logger, 'poison'
         )
 
         if scheduler is not None:
@@ -344,13 +346,24 @@ def main_worker(gpu, ngpus_per_node, args, config):
             logger.info(
                 "Best test accuaracy {} in epoch {}".format(best_acc, best_epoch)
             )
+            if "smooth_poison" in bd_config:
+                param1 = "amplitude"
+                param2 = "kernel_size"
+            elif "invisible_grid" in bd_config:
+                param1 = "amplitude"
+                param2 = "frequency"
+            elif "SIG" in bd_config:
+                param1 = "amp"
+                param2 = "freq"
             if is_best:
-                ckpt_path = os.path.join(args.ckpt_dir, "best_model.pt")
+                ckpt_path = os.path.join(args.ckpt_dir, f'best_model_{config["backdoor"][param1]}_{config["backdoor"][param2]}.pt')
                 torch.save(saved_dict, ckpt_path)
                 logger.info("Save the best model to {}".format(ckpt_path))
-            ckpt_path = os.path.join(args.ckpt_dir, "latest_model.pt")
+            ckpt_path = os.path.join(args.ckpt_dir, f'latest_model_{config["backdoor"][param1]}_{config["backdoor"][param2]}.pt')
             torch.save(saved_dict, ckpt_path)
             logger.info("Save the latest model to {}".format(ckpt_path))
+        end_time = time.time()
+        logger.info(f'Epoch {epoch + 1} took {end_time - start_time} seconds')
 
 
 def class_aware_loss_guided_split(record_list, has_indice, all_data_info, choice_num, logger):

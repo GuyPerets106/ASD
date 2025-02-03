@@ -104,8 +104,8 @@ def load_state(
         else:
             ckpt_path = os.path.join(ckpt_dir, resume)
         ckpt = torch.load(ckpt_path, map_location="cuda:{}".format(gpu))
-        logger.info("Load training state from the checkpoint {}:".format(ckpt_path))
-        logger.info("Epoch: {}, result: {}".format(ckpt["epoch"], ckpt["result"]))
+        # logger.info("Load training state from the checkpoint {}:".format(ckpt_path))
+        # logger.info("Epoch: {}, result: {}".format(ckpt["epoch"], ckpt["result"]))
         if "parallel" in str(type(model)):
             # DataParallel or DistributedParallel.
             model.load_state_dict(ckpt["model_state_dict"])

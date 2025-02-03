@@ -3,10 +3,10 @@ seed:
   seed: 100
   deterministic: False
   benchmark: True
-dataset_dir: /data/gaokuofeng/datasets/cifar-10-batches-py
+dataset_dir: /gpfs0/bgu-benshimo/users/guyperet/ASD/datasets/cifar-10/cifar-10-batches-py
 num_classes: 10
-saved_dir: ./saved_data
-storage_dir: ./storage
+saved_dir: /gpfs0/bgu-benshimo/users/guyperet/ASD/saved_data
+storage_dir: /gpfs0/bgu-benshimo/users/guyperet/ASD/storage
 prefetch: True  # turn on prefetch mode will speedup io
 transform:
   pre: null
@@ -34,7 +34,7 @@ backdoor:
   poison_ratio: 0.05
   target_label: 3
   badnets:
-    trigger_path: ./data/trigger/cifar_1.png
+    trigger_path: /gpfs0/bgu-benshimo/users/guyperet/ASD/data/trigger/cifar_1.png
 loader:
   batch_size: 128
   num_workers: 4

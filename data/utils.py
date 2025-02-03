@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 from PIL import ImageFilter
 from torch.utils.data import DataLoader
 
-from .backdoor import BadNets
+from .backdoor import BadNets, SIG, InvisibleGrid, SmoothPoison
 from .cifar import CIFAR10
 from .prefetch import PrefetchLoader
 
@@ -106,6 +106,12 @@ def gen_poison_idx(dataset, target_label, poison_ratio=None):
 def get_bd_transform(bd_config):
     if "badnets" in bd_config:
         bd_transform = BadNets(bd_config["badnets"]["trigger_path"])
+    elif "SIG" in bd_config:
+        bd_transform = SIG(bd_config["amp"], bd_config["freq"])
+    elif "invisible_grid" in bd_config:
+        bd_transform = InvisibleGrid(bd_config["amplitude"], bd_config["frequency"])
+    elif "smooth_poison" in bd_config:
+        bd_transform = SmoothPoison(bd_config["amplitude"], bd_config["kernel_size"])
     else:
         raise ValueError("Backdoor {} is not supported.".format(bd_config))
 

@@ -139,14 +139,14 @@ def mixmatch_train(
     return result
 
 
-def linear_test(model, loader, criterion, logger):
+def linear_test(model, loader, criterion, logger, type):
     loss_meter = AverageMeter("loss")
     acc_meter = AverageMeter("acc")
     meter_list = [loss_meter, acc_meter]
 
     model.eval()
     gpu = next(model.parameters()).device
-    start_time = time.time()
+    # start_time = time.time()
     for batch_idx, batch in enumerate(loader):
         data = batch["img"].cuda(gpu, non_blocking=True)
         target = batch["target"].cuda(gpu, non_blocking=True)
@@ -160,12 +160,15 @@ def linear_test(model, loader, criterion, logger):
         truth = pred.view_as(target).eq(target)
         acc_meter.update((torch.sum(truth).float() / len(truth)).item())
 
-        tabulate_step_meter(batch_idx, len(loader), 2, meter_list, logger)
+        # tabulate_step_meter(batch_idx, len(loader), 2, meter_list, logger)
 
-    logger.info("Linear test summary:")
-    tabulate_epoch_meter(time.time() - start_time, meter_list, logger)
+    # logger.info("Linear test summary:")
+    # tabulate_epoch_meter(time.time() - start_time, meter_list, logger)
     result = {m.name: m.total_avg for m in meter_list}
-
+    if type == "clean":
+        logger.info(f"Clean Data Model Accuracy: {acc_meter.total_avg:.2%}%")
+    elif type == "poison":
+        logger.info(f"Attack Success Rate: {acc_meter.total_avg:.2%}%")
     return result
 
 

@@ -31,7 +31,7 @@ from utils.setup import (
 from utils.trainer.semi import linear_test
 
 def main():
-    print("===Setup running===")
+    # print("===Setup running===")
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="./config/baseline_asd.yaml")
     parser.add_argument("--gpu", default="0", type=str)
@@ -59,9 +59,9 @@ def main():
     logger = get_logger(args.log_dir, "asd_test.log", args.resume, gpu == 0)
     torch.cuda.set_device(gpu)
 
-    logger.info("===Prepare data===")
+    # logger.info("===Prepare data===")
     bd_config = config["backdoor"]
-    logger.info("Load backdoor config:\n{}".format(bd_config))
+    # logger.info("Load backdoor config:\n{}".format(bd_config))
     bd_transform = get_bd_transform(bd_config)
     target_label = bd_config["target_label"]
 
@@ -73,7 +73,7 @@ def main():
         "primary": train_primary_transform,
         "remaining": train_remaining_transform,
     }
-    logger.info("Training transformations:\n {}".format(train_transform))
+    # logger.info("Training transformations:\n {}".format(train_transform))
     test_primary_transform = get_transform(config["transform"]["test"]["primary"])
     test_remaining_transform = get_transform(config["transform"]["test"]["remaining"])
     test_transform = {
@@ -81,9 +81,9 @@ def main():
         "primary": test_primary_transform,
         "remaining": test_remaining_transform,
     }
-    logger.info("Test transformations:\n {}".format(test_transform))
+    # logger.info("Test transformations:\n {}".format(test_transform))
 
-    logger.info("Load dataset from: {}".format(config["dataset_dir"]))
+    # logger.info("Load dataset from: {}".format(config["dataset_dir"]))
     clean_test_data = get_dataset(
         config["dataset_dir"], test_transform, train=False, prefetch=config["prefetch"]
     )
@@ -97,17 +97,17 @@ def main():
     poison_test_loader = get_loader(poison_test_data, config["loader"])
 
 
-    logger.info("\n===Setup training===")
+    # logger.info("\n===Setup training===")
     backbone = get_network(config["network"])
-    logger.info("Create network: {}".format(config["network"]))
+    # logger.info("Create network: {}".format(config["network"]))
     linear_model = LinearModel(backbone, backbone.feature_dim, config["num_classes"])
     linear_model = linear_model.cuda(gpu)
 
     criterion = get_criterion(config["criterion"])
     criterion = criterion.cuda(gpu)
-    logger.info("Create criterion: {} for test".format(criterion))
+    # logger.info("Create criterion: {} for test".format(criterion))
 
-    logger.info("Create scheduler: {}".format(config["lr_scheduler"]))
+    # logger.info("Create scheduler: {}".format(config["lr_scheduler"]))
     load_state(
         linear_model,
         args.resume,
@@ -118,12 +118,12 @@ def main():
     
     logger.info("Test model on clean data...")
     linear_test(
-        linear_model, clean_test_loader, criterion, logger
+        linear_model, clean_test_loader, criterion, logger, type='clean'
     )
 
     logger.info("Test model on poison data...")
     linear_test(
-        linear_model, poison_test_loader, criterion, logger
+        linear_model, poison_test_loader, criterion, logger, type='poison'
     )
 
 if __name__ == "__main__":
